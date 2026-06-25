@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; connect-src 'self' wss://your-app.onrender.com; img-src 'self' data: https://images.unsplash.com;">
+    <title data-i18n="app_name">Mokalmat Chat - VIP Edition</title>
+    <link rel="stylesheet" href="style.css">
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+</head>
+<body>
+    <!-- LOGIN SCREENS -->
+    <div class="screen" id="loginScreen">
+        <div class="login-box">
+            <h1 data-i18n="app_name">💬 Mokalmat Chat</h1>
+            <div class="info" data-i18n="info_create_arabic">ℹ️ Create Arabic ids is free</div>
+            <input type="text" id="loginUsername" placeholder="Username" data-i18n="username">
+            <div class="password-wrapper">
+    <input type="password" id="loginPassword" placeholder="Password" data-i18n="password">
+    <span class="toggle-password" onclick="togglePasswordVisibility('loginPassword', this)">👁️</span>
+</div>
+            <button id="loginBtn" data-i18n="login">Login</button>
+            <div class="toggle-form" id="showRegisterLink" data-i18n="register">Register</div>
+            <div class="toggle-form" id="showForgotLink" data-i18n="forgot_password">Forgot Password?</div>
+            <div style="margin-top: 15px;">
+                <select id="languageSwitcher" class="lang-select">
+                    <option value="en">English</option>
+                    <option value="ar">العربية</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="registerScreen" style="display:none">
+        <div class="login-box">
+            <h1 data-i18n="register_title">📝 Register</h1>
+            <div class="info" data-i18n="security_info">ℹ️ Set a security question for password reset</div>
+            <input type="text" id="regUsername" placeholder="Username" data-i18n="username">
+            <div class="password-wrapper">
+    <input type="password" id="regPassword" placeholder="Password" data-i18n="password">
+    <span class="toggle-password" onclick="togglePasswordVisibility('regPassword', this)">👁️</span>
+</div>
+            <select id="regGender">
+                <option value="" data-i18n="select_gender">Select Gender</option>
+                <option value="Male" data-i18n="male">Male</option>
+                <option value="Female" data-i18n="female">Female</option>
+                <option value="Other" data-i18n="other">Other</option>
+            </select>
+            <input type="text" id="regSecurityQuestion" placeholder="Security Question (e.g. Your pet's name?)" data-i18n="security_question">
+            <input type="text" id="regSecurityAnswer" placeholder="Answer" data-i18n="security_answer">
+            <button id="registerBtn" data-i18n="register">Register</button>
+            <div class="toggle-form" id="showLoginLink" data-i18n="back">Back</div>
+        </div>
+    </div>
+
+    <div class="screen" id="forgotScreen" style="display:none">
+        <div class="login-box">
+            <h1 data-i18n="reset_password">🔐 Reset Password</h1>
+            <p style="font-size:13px;color:#6b7280;margin-bottom:12px;" data-i18n="reset_instructions">Enter your username, then answer your security question to reset your password.</p>
+            <input type="text" id="resetUsername" placeholder="Username" data-i18n="username">
+            <button id="getQuestionBtn" data-i18n="get_question">Next</button>
+            <div id="securityQuestionDiv" style="display:none; margin-top:15px;">
+                <p id="questionText" style="background:#f3f4f6;padding:12px;border-radius:20px;font-weight:600;color:#1f2937;"></p>
+                <input type="text" id="resetAnswer" placeholder="Your answer" data-i18n="security_answer">
+                <div class="password-wrapper">
+    <input type="password" id="newPassword" placeholder="New password" data-i18n="new_password">
+    <span class="toggle-password" onclick="togglePasswordVisibility('newPassword', this)">👁️</span>
+</div>
+                <button id="resetPasswordBtn" data-i18n="reset">Reset Password</button>
+                <div id="resetStatus" style="margin-top:10px;font-size:13px;color:#6b7280;"></div>
+            </div>
+            <div class="toggle-form" id="showLoginFromForgotLink" data-i18n="back_login">Back to Login</div>
+        </div>
+    </div>
+
+    <!-- Incoming Call Bar -->
+    <div class="incoming-call-bar" id="incomingCallBar">
+        <span id="callerName">Unknown</span> <span data-i18n="is_calling">is calling...</span>
+        <div>
+            <button class="call-answer" id="acceptCallBtn" data-i18n="answer">Answer</button>
+            <button class="call-decline" id="declineCallBtn" data-i18n="decline">Decline</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="main-container" id="mainContainer">
+        <!-- Header with VIP badge & connection status -->
+        <div class="header" id="mainHeader">
+            <div class="user-info">
+                <div class="profile-pic" id="profilePic">👤</div>
+                <div class="user-details">
+                    <h4 id="currentUsername">User</h4>
+                    <span id="headerVipBadge" class="header-vip-badge" style="display:none;">💎</span>
+                    <div class="coins" id="coinBalance">💰 0</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <span id="connectionStatus" class="connection-status-indicator">
+                    <span class="dot"></span> Connected
+                </span>
+                <button class="bell-icon" id="bellIcon">🔔<span id="notificationBadge" class="bell-badge" style="display:none;">0</span></button>
+                <button class="menu-btn" id="menuBtn">⋮</button>
+            </div>
+            <div id="notificationDropdown" class="notification-dropdown">
+                <div class="notification-header"><span data-i18n="notifications">🔔 Notifications</span><button class="clear-notif" id="clearNotifBtn" data-i18n="clear_all">Clear</button></div>
+                <div id="notificationsList"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Gift Ticker -->
+            <div class="ticker-container" id="giftTicker">
+                <div class="ticker-track" id="tickerTrack">
+                    <span class="ticker-text" id="tickerText">🎁 New gift!</span>
+                </div>
+            </div>
+
+            <!-- Rooms View -->
+            <div class="rooms-view" id="roomsView">
+                <div class="search-container">
+                    <input type="text" id="roomSearch" placeholder="🔍 Search rooms..." data-i18n="search_rooms">
+                    <button id="roomSearchBtn" data-i18n="search">Search</button>
+                </div>
+                <button class="create-room-btn" id="createRoomBtn" data-i18n="create_room_btn">➕ Create Room (1500 coins)</button>
+                <div id="roomsList"></div>
+            </div>
+
+            <!-- Friends View -->
+            <div class="friends-view" id="friendsView">
+                <div class="search-container">
+                    <input type="text" id="friendSearch" placeholder="🔍 Search users..." data-i18n="search_users">
+                    <button id="friendSearchBtn" data-i18n="search">Search</button>
+                </div>
+                <div id="searchResults" style="display:none;"></div>
+                <h3 data-i18n="your_friends">👥 Your Friends</h3>
+                <div id="friendsList"></div>
+            </div>
+
+            <!-- Gifts View -->
+            <div class="gifts-view" id="giftsView">
+                <button class="send-gift-btn" id="sendGiftViewBtn" data-i18n="send_gift_btn">🎁 Send Gift</button>
+                <h3 data-i18n="gift_history">📦 Gift History</h3>
+                <div id="giftHistoryList"></div>
+            </div>
+
+            <!-- Room Chat -->
+            <div class="chat-view" id="roomChatView">
+                <div class="chat-header" id="roomChatHeader">
+                    <div id="roomOwnerPicContainer" style="display:none;"><img id="roomOwnerPic" class="owner-pic"></div>
+                    <div class="chat-header-info">
+                        <h4 id="roomChatName">#Room</h4>
+                        <p id="roomChatStats" data-i18n="members_count">0 members</p>
+                    </div>
+                    <button class="youtube-toggle-btn" id="youtubeToggleBtn" style="display:none;">🎬</button>
+                    <button class="boost-icon" id="boostIcon">🚀</button>
+                    <button class="room-menu-btn" id="roomMenuBtn">⋮</button>
+                </div>
+                <div class="room-dropdown" id="roomDropdownMenu">
+                    <div class="room-dropdown-item" id="roomSettingsMenuItem" style="display:none;">
+                        <span>⚙️</span> <span data-i18n="room_settings">Room Settings</span>
+                    </div>
+                    <div class="room-dropdown-item" id="membersPanelMenuItem">
+                        <span>👥</span> <span data-i18n="members_panel">Members Panel</span>
+                    </div>
+                    <div class="room-dropdown-item" id="banUserMenuItem" style="display:none;">
+                        <span>🚫</span> <span data-i18n="ban_kick">Ban / Kick User</span>
+                    </div>
+                    <div class="room-dropdown-item" id="kickedListMenuItem" style="display:none;">
+                        <span>📋</span> <span data-i18n="banned_list">Banned Users List</span>
+                    </div>
+                    <div class="room-dropdown-item" id="leaveRoomMenuItem">
+                        <span>🚪</span> <span data-i18n="leave_room">Leave Room</span>
+                    </div>
+                </div>
+                <div id="youtubePlayerContainer" class="youtube-player-container">
+                    <div class="youtube-search-bar">
+                        <input type="text" id="youtubeSearchInput" placeholder="Search YouTube or paste URL..." class="youtube-search-input" data-i18n="youtube_placeholder">
+                        <button id="youtubeSearchBtn" class="youtube-search-btn" data-i18n="play">🔍 Play</button>
+                    </div>
+                    <iframe id="youtubeIframe" class="youtube-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ?enablejsapi=1" allowfullscreen></iframe>
+                </div>
+                <div class="chat-messages" id="roomMessages"></div>
+                <div class="typing-indicator" id="roomTypingIndicator"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="roomMessageInput" placeholder="Message..." data-i18n="type_message">
+                    <button class="media-btn" id="roomImageBtn">🖼️</button>
+                    <button class="media-btn" id="roomVoiceBtn">🎤</button>
+                    <button class="send-btn" id="roomSendBtn" data-i18n="send">Send</button>
+                </div>
+            </div>
+
+            <!-- Private Chat -->
+            <div class="chat-view" id="privateChatView">
+                <div class="chat-header">
+                    <button class="back-btn" id="privateChatBackBtn">←</button>
+                    <div class="chat-header-info">
+                        <h4 id="privateChatName">User</h4>
+                        <p id="privateChatStatus" data-i18n="offline">Offline</p>
+                    </div>
+                    <button class="call-icon" id="privateCallBtn">📞</button>
+                </div>
+                <div class="chat-messages" id="privateMessages"></div>
+                <div class="typing-indicator" id="privateTypingIndicator"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="privateMessageInput" placeholder="Message..." data-i18n="type_message">
+                    <button class="media-btn" id="privateImageBtn">🖼️</button>
+                    <button class="media-btn" id="privateVoiceBtn">🎤</button>
+                    <button class="send-btn" id="privateSendBtn" data-i18n="send">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav" id="bottomNav">
+            <div class="nav-item active" id="navRooms"><div class="nav-icon">🏠</div><div class="nav-label" data-i18n="rooms">Rooms</div></div>
+            <div class="nav-item" id="navFriends"><div class="nav-icon">👥</div><div class="nav-label" data-i18n="friends">Friends</div></div>
+            <div class="nav-item" id="navGifts"><div class="nav-icon">🎁</div><div class="nav-label" data-i18n="gifts">Gifts</div></div>
+        </div>
+    </div>
+
+    <!-- SIDE PANEL (global menu) -->
+    <div class="side-panel" id="sidePanel">
+        <div class="panel-header"><h3 data-i18n="menu">Menu</h3></div>
+        <div class="panel-section"><h4 data-i18n="friend_requests">👥 Friend Requests</h4><div id="friendRequestsList"></div></div>
+        <div class="panel-section"><h4 data-i18n="vip_status">💎 VIP Status</h4><div id="vipStatusDisplay" class="vip-status-box">Loading...</div><button class="buy-vip-btn" id="buyVipBtn" data-i18n="buy_vip">💎 Buy VIP Plan (5000 coins for 30 days)</button></div>
+        <div class="panel-section">
+            <h4 data-i18n="buy_coins">💰 Buy Coins</h4>
+            <div class="coin-package"><span>1500 Coins - $4.99</span><div><button class="card-btn" data-coins="1500" data-package="1500 Coins" data-price="4.99" data-method="whish" data-i18n="card">💳 Card</button><button class="crypto-btn" data-coins="1500" data-package="1500 Coins" data-price="4.99" data-method="nowpayment" data-i18n="crypto">₿ Crypto</button></div></div>
+            <div class="coin-package"><span>5000 Coins - $14.99</span><div><button class="card-btn" data-coins="5000" data-package="5000 Coins" data-price="14.99" data-method="whish" data-i18n="card">💳 Card</button><button class="crypto-btn" data-coins="5000" data-package="5000 Coins" data-price="14.99" data-method="nowpayment" data-i18n="crypto">₿ Crypto</button></div></div>
+            <div class="coin-package"><span>10000 Coins - $24.99</span><div><button class="card-btn" data-coins="10000" data-package="10000 Coins" data-price="24.99" data-method="whish" data-i18n="card">💳 Card</button><button class="crypto-btn" data-coins="10000" data-package="10000 Coins" data-price="24.99" data-method="nowpayment" data-i18n="crypto">₿ Crypto</button></div></div>
+            <button class="manual-request-btn" id="manualCoinRequestBtn" data-i18n="request_coins">💰 Request Coins (Manual)</button>
+        </div>
+        
+        <div class="panel-section">
+            <h4 data-i18n="translation">🌐 Translation</h4>
+            <label data-i18n="target_language">Target Language:</label>
+            <select id="targetLanguage">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="it">Italian</option>
+                <option value="pt">Portuguese</option>
+                <option value="ru">Russian</option>
+                <option value="zh">Chinese</option>
+                <option value="ja">Japanese</option>
+                <option value="ar">Arabic</option>
+                <option value="hi">Hindi</option>
+                <option value="tr">Turkish</option>
+            </select>
+            <div class="checkbox-group" style="margin-top: 10px;">
+                <label><input type="checkbox" id="autoTranslateMessages" checked> <span data-i18n="auto_translate">Auto-translate all messages</span></label>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: #6b7280;">
+                <span data-i18n="translation_note">💡 Messages will be translated to your target language automatically.</span>
+            </div>
+        </div>
+        <div class="panel-section">
+            <h4 data-i18n="notification_sounds">🔔 Notification Sounds</h4>
+            <label class="switch-label">
+                <input type="checkbox" id="soundToggle" checked>
+                <span data-i18n="enable_sounds">Enable sound alerts</span>
+            </label>
+        </div>
+        <div class="panel-section">
+            <button class="support-btn" id="supportBtn" data-i18n="contact_support">🛟 Contact Support</button>
+        </div>
+
+        <!-- Support Modal (Submit Ticket) -->
+        <div class="modal" id="supportModal">
+            <div class="modal-content">
+                <h3 data-i18n="contact_support">🛟 Contact Support</h3>
+                <input type="text" id="supportSubject" placeholder="Subject" maxlength="100" data-i18n="subject">
+                <textarea id="supportMessage" placeholder="Describe your issue..." rows="4" style="width:100%; border-radius:20px; padding:12px;" data-i18n="describe_issue"></textarea>
+                <input type="file" id="supportScreenshot" accept="image/*">
+                <button class="modal-btn" id="supportSubmitBtn" data-i18n="send">Send</button>
+                <button class="modal-close" id="supportCancelBtn" data-i18n="cancel">Cancel</button>
+                <div id="supportResponse" style="margin-top:10px; font-size:13px;"></div>
+            </div>
+        </div>
+
+        <!-- Admin Support Panel Modal (View Tickets) -->
+        <div class="modal" id="adminSupportModal">
+            <div class="modal-content" style="max-width:600px;">
+                <h3 data-i18n="support_tickets">📬 Support Tickets</h3>
+                <div id="adminTicketsList"></div>
+                <button class="modal-close" id="closeAdminSupportBtn" data-i18n="close">Close</button>
+            </div>
+        </div>
+
+        <!-- Ticket Reply Modal (for admin) -->
+        <div class="modal" id="replyTicketModal">
+            <div class="modal-content">
+                <h3 data-i18n="reply_to_ticket">Reply to Ticket</h3>
+                <p id="replyTicketId"></p>
+                <p><strong data-i18n="user_message">User message:</strong> <span id="replyUserMessage"></span></p>
+                <textarea id="replyMessage" rows="3" placeholder="Your reply..." style="width:100%; border-radius:20px; padding:12px;" data-i18n="your_reply"></textarea>
+                <button id="sendReplyBtn" data-i18n="send_reply">Send Reply</button>
+                <button id="closeReplyTicketBtn" data-i18n="cancel">Cancel</button>
+            </div>
+        </div>
+
+        <!-- User View Ticket Reply Modal -->
+        <div class="modal" id="viewTicketModal">
+            <div class="modal-content">
+                <h3 data-i18n="ticket_reply">📬 Ticket Reply</h3>
+                <p><strong data-i18n="ticket_id">Ticket ID:</strong> <span id="viewTicketId"></span></p>
+                <p><strong data-i18n="admin_reply">Admin Reply:</strong></p>
+                <div id="viewTicketReply" style="background:#f1f5f9; padding:12px; border-radius:20px; margin:10px 0;"></div>
+                <button class="modal-close" id="closeViewTicketBtn" data-i18n="close">Close</button>
+            </div>
+        </div>
+
+        <!-- Coin History Button & Modal -->
+        <div class="panel-section">
+            <button class="history-btn" id="coinHistoryBtn" data-i18n="view_coin_history">📜 View Coin History</button>
+        </div>
+
+        <!-- ADMIN PANEL -->
+        <div class="panel-section" id="adminSection" style="display:none">
+            <h4 data-i18n="admin_panel">👑 Admin Panel</h4>
+            <div class="admin-grid">
+                <button class="admin-btn green" id="adminManageUsersBtn" data-i18n="manage_users">Manage Users</button>
+                <button class="admin-btn orange" id="adminManageRoomsBtn" data-i18n="manage_rooms">Manage Rooms</button>
+                <button class="admin-btn pink" id="adminManageGiftsBtn" data-i18n="manage_gifts">Manage Gifts</button>
+                <button class="admin-btn purple" id="adminClearFriendRequestsBtn" data-i18n="clear_friend_requests">Clear Friend Requests</button>
+                <button class="admin-btn blue" id="adminClearCoinHistoryBtn" data-i18n="clear_coin_history">Clear Coin History</button>
+                <button class="admin-btn teal" id="adminBoostLogBtn" data-i18n="boost_logs">📊 Boost Logs</button>
+                <button class="admin-btn violet" id="adminPendingRequestsBtn" data-i18n="pending_requests">💳 Pending Requests</button>
+                <button class="admin-btn purple" id="adminSupportTicketsBtn" data-i18n="support_tickets">📬 Support Tickets</button>
+            </div>
+            <h4 data-i18n="give_coins">🎁 Give Coins</h4>
+            <input type="text" id="adminGiveUsername" class="admin-input" placeholder="Username" data-i18n="username">
+            <input type="number" id="adminGiveAmount" class="admin-input" placeholder="Amount" data-i18n="amount">
+            <button class="admin-btn indigo" id="adminGiveCoinsBtn" data-i18n="send_coins">Send Coins</button>
+            <h4 data-i18n="reset_password_admin">🔑 Reset Password</h4>
+            <input type="text" id="adminResetUser" class="admin-input" placeholder="Username" data-i18n="username">
+            <input type="password" id="adminNewPass" class="admin-input" placeholder="New password" data-i18n="new_password">
+            <button class="admin-btn gray" id="adminResetPasswordBtn" data-i18n="reset">Reset Password</button>
+        </div>
+
+        <div class="panel-section"><button class="logout-btn" id="logoutBtn" data-i18n="logout">🚪 Logout</button></div>
+    </div>
+
+    <!-- USERS PANEL -->
+    <div class="users-panel" id="usersPanel">
+        <div class="users-panel-header"><span data-i18n="members">👥 Members</span><button class="close-panel" id="closeUsersPanelBtn">✕</button></div>
+        <div id="roomMembersList"></div>
+        <div id="kickedUsersPanelList" class="kicked-list"></div>
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal" id="roomSettingsModal"><div class="modal-content"><h3 data-i18n="room_settings">⚙️ Room Settings</h3><div class="checkbox-group"><label><input type="checkbox" id="membersOnlyToggle"> <span data-i18n="members_only">🔒 Members Only</span></label></div><h4 data-i18n="add_member">➕ Add Member</h4><input type="text" id="addMemberUsername" placeholder="Username" data-i18n="username"><button class="modal-btn" id="addMemberBtn" data-i18n="add">Add</button><h4 data-i18n="member_list">👥 Member List</h4><div id="roomMemberManageList"></div><button class="modal-close" id="closeRoomSettingsBtn" data-i18n="close">Close</button></div></div>
+    <div class="modal" id="profileModal"><div class="modal-content" id="profileContent"></div><button class="modal-close" id="closeProfileBtn" data-i18n="close">Close</button></div>
+    <div class="modal" id="kickListModal"><div class="modal-content"><h3 data-i18n="banned_users">🚫 Banned Users</h3><div id="kickedUsersList"></div><button class="modal-close" id="closeKickListBtn" data-i18n="close">Close</button></div></div>
+    <div class="modal" id="banUserModal"><div class="modal-content"><h3 data-i18n="ban_kick_user">🚫 Ban / Kick User</h3><p data-i18n="enter_username_ban">Enter username to kick/ban from this room:</p><input type="text" id="banUsername" placeholder="Username" data-i18n="username"><button class="modal-btn" id="banUserExecuteBtn" data-i18n="kick_ban">Kick & Ban</button><button class="modal-close" id="closeBanUserBtn" data-i18n="cancel">Cancel</button></div></div>
+
+    <!-- CALL MODAL WITH SPEAKER BUTTON -->
+    <div class="call-modal" id="callModal">
+        <div class="call-video-container">
+            <div class="call-video"><video id="localVideo" autoplay muted playsinline></video></div>
+            <div class="call-video"><video id="remoteVideo" autoplay playsinline></video></div>
+        </div>
+        <div class="call-controls">
+            <button id="callMuteBtn" data-i18n="mute">🎤 Mute</button>
+            <button id="callVideoBtn" data-i18n="video">📹 Video</button>
+            <button id="speakerBtn">🔊</button>
+            <button class="end-call" id="endCallBtn" data-i18n="end_call">End Call</button>
+        </div>
+    </div>
+
+    <div class="boost-modal" id="boostModal"><h3 data-i18n="boost_room">🚀 Boost Room</h3><select id="boostAmount"><option value="100" data-i18n="basic_boost">100 Coins - Basic</option><option value="500" data-i18n="silver_boost">500 Coins - Silver</option><option value="1000" data-i18n="gold_boost">1000 Coins - Gold</option></select><button id="boostModalBoostBtn" data-i18n="boost">Boost</button><button id="boostModalCancelBtn" data-i18n="cancel">Cancel</button></div>
+    <div class="overlay" id="overlay"></div>
+    <div class="modal" id="createRoomModal"><div class="modal-content"><h3 data-i18n="create_room_title">Create Room (1500 coins)</h3><input type="text" id="newRoomName" placeholder="Room name" data-i18n="room_name"><div id="vipRoomOption"><label><input type="checkbox" id="isVipRoom"> <span data-i18n="vip_room_check">💎 VIP Room (gold theme + YouTube)</span></label></div><button id="createRoomModalCreateBtn" data-i18n="create">Create</button><button id="createRoomModalCancelBtn" data-i18n="cancel">Cancel</button></div></div>
+    <div class="modal" id="sendGiftModal"><div class="modal-content"><h3 data-i18n="send_gift_title">Send Gift</h3><input type="text" id="giftToUser" placeholder="Username" data-i18n="username"><select id="giftAmountSelect"><option value="100">100 Coins</option><option value="500">500 Coins</option><option value="1000">1000 Coins</option></select><input type="text" id="giftMessage" placeholder="Message" data-i18n="message"><button id="sendGiftSendBtn" data-i18n="send">Send</button><button id="sendGiftCancelBtn" data-i18n="cancel">Cancel</button></div></div>
+    <div class="modal" id="manualCoinRequestModal"><div class="modal-content"><h3 data-i18n="request_coins_title">💰 Request Coins</h3><select id="manualPaymentMethod"><option value="giftcard" data-i18n="gift_card">🎁 Gift Card</option><option value="crypto" data-i18n="crypto">💎 Crypto (TRC20)</option></select><div id="giftCardFields"><input type="text" id="giftCardNumber" placeholder="Gift Card Number" data-i18n="gift_card_number"></div><div id="cryptoFields" style="display:none;"><p data-i18n="send_usdt">Send USDT (TRC20) to:</p><p class="crypto-address">TV7rLej7QpR35f7dkMWBCsZ9Ej5ydcocsb</p><input type="text" id="cryptoTransactionId" placeholder="Transaction ID" data-i18n="transaction_id"></div><input type="number" id="manualCoinAmount" placeholder="Amount (min 100)" min="100" data-i18n="amount"><input type="file" id="proofFile" accept="image/*"><button id="manualRequestSubmit" data-i18n="submit">Submit</button><button id="manualRequestCancel" data-i18n="cancel">Cancel</button></div></div>
+    <div class="modal" id="imageModal"><div class="modal-content"><h3 data-i18n="send_image">Send Image</h3><input type="file" id="imageFile" accept="image/*"><button id="imageSendBtn" data-i18n="send">Send</button><button id="imageCancelBtn" data-i18n="cancel">Cancel</button></div></div>
+    <div class="modal" id="usersModal"><div class="modal-content" id="allUsersList"></div><button id="closeUsersBtn" data-i18n="close">Close</button></div>
+    <div class="modal" id="roomsModal"><div class="modal-content" id="allRoomsList"></div><button id="closeRoomsBtn" data-i18n="close">Close</button></div>
+    <div class="modal" id="giftsModal"><div class="modal-content" id="allGiftsList"></div><button id="closeGiftsBtn" data-i18n="close">Close</button></div>
+    <div class="modal" id="boostLogModal"><div class="modal-content" id="boostLogList"></div><button id="closeBoostLogBtn" data-i18n="close">Close</button></div>
+    <div class="modal" id="pendingRequestsModal"><div class="modal-content" id="pendingRequestsList"></div><button id="closePendingRequestsBtn" data-i18n="close">Close</button></div>
+    
+    <!-- Coin History Modal -->
+    <div class="modal" id="coinHistoryModal">
+        <div class="modal-content">
+            <h3 data-i18n="coin_history">📜 Coin History</h3>
+            <div id="coinHistoryModalList" style="max-height: 300px; overflow-y: auto;"></div>
+            <button class="modal-close" id="closeCoinHistoryBtn" data-i18n="close">Close</button>
+        </div>
+    </div>
+
+    <div class="image-lightbox" id="imageLightbox"><span class="close-lightbox" id="lightboxClose">&times;</span><img class="lightbox-img" id="lightboxImg" src=""></div>
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
