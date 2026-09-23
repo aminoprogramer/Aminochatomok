@@ -1,7 +1,7 @@
 {
   "name": "mokalmat-chat",
-  "version": "2.0.0",
-  "description": "Mokalmat Chat - Secure VIP Edition",
+  "version": "2.1.0",
+  "description": "Mokalmat Chat - Secure VIP Edition with IP Ban System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
