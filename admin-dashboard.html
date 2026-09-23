@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Security Dashboard — Mokalmat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ═══════════ HEADER ═══════════ */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #b91c1c;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            50% {
+                opacity: 0.6;
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* ═══════════ STATS CARDS ═══════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, #7f1d1d, #991b1b);
+            border-color: #dc2626;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #78350f, #92400e);
+            border-color: #f59e0b;
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #064e3b, #065f46);
+            border-color: #10b981;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* ═══════════ SECTION ═══════════ */
+        .section {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #334155;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #4338ca;
+        }
+
+        .refresh-btn.danger {
+            background: #dc2626;
+        }
+
+        .refresh-btn.danger:hover {
+            background: #b91c1c;
+        }
+
+        /* ═══════════ BAN FORM ═══════════ */
+        .ban-form {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .ban-form input,
+        .ban-form select {
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: white;
+            font-size: 13px;
+        }
+
+        .ban-form input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .ban-form input:focus,
+        .ban-form select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* ═══════════ TABLE ═══════════ */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: right;
+            padding: 10px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            border-bottom: 2px solid #334155;
+            font-weight: 600;
+        }
+
+        .table td {
+            padding: 10px;
+            border-bottom: 1px solid #334155;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
+        .table tr:hover {
+            background: #0f172a;
+        }
+
+        /* ═══════════ BADGES ═══════════ */
+        .badge {
+            padding: 3px 10px;
+            border-radius: 40px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge.danger {
+            background: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .badge.warning {
+            background: #78350f;
+            color: #fcd34d;
+        }
+
+        .badge.info {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+
+        .badge.success {
+            background: #064e3b;
+            color: #6ee7b7;
+        }
+
+        .badge.purple {
+            background: #4c1d95;
+            color: #c4b5fd;
+        }
+
+        /* ═══════════ SCORE BAR ═══════════ */
+        .score-bar {
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #dc2626);
+            transition: width 0.3s;
+        }
+
+        /* ═══════════ LOG ITEMS ═══════════ */
+        .log-item {
+            padding: 10px 12px;
+            border-right: 3px solid #334155;
+            background: #0f172a;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-item.danger { border-right-color: #dc2626; }
+        .log-item.warning { border-right-color: #f59e0b; }
+        .log-item.info { border-right-color: #3b82f6; }
+        .log-item.success { border-right-color: #10b981; }
+
+        .log-time {
+            font-size: 10px;
+            color: #64748b;
+            min-width: 75px;
+            flex-shrink: 0;
+        }
+
+        .log-content {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        /* ═══════════ ACTION BUTTONS ═══════════ */
+        .action-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin: 2px;
+        }
+
+        .action-btn:hover {
+            background: #dc2626;
+        }
+
+        .action-btn.success {
+            background: #10b981;
+        }
+
+        .action-btn.success:hover {
+            background: #059669;
+        }
+
+        .action-btn.info {
+            background: #3b82f6;
+        }
+
+        .action-btn.info:hover {
+            background: #2563eb;
+        }
+
+        /* ═══════════ LOGIN SCREEN ═══════════ */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .login-box {
+            background: #1e293b;
+            padding: 40px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 22px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 14px 18px;
+            margin: 8px 0;
+            border: 1px solid #334155;
+            border-radius: 40px;
+            font-size: 15px;
+            background: #0f172a;
+            color: white;
+        }
+
+        .login-box input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: transform 0.2s;
+        }
+
+        .login-box button:hover {
+            transform: scale(1.02);
+        }
+
+        .login-error {
+            color: #ef4444;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+
+        /* ═══════════ EMPTY STATE ═══════════ */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* ═══════════ UPTIME INFO ═══════════ */
+        .uptime-info {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 20px;
+            padding: 12px;
+            background: #1e293b;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        /* ═══════════ MODAL ═══════════ */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+        }
+
+        .modal-close {
+            margin-top: 16px;
+            width: 100%;
+            padding: 10px;
+            border-radius: 40px;
+            border: none;
+            background: #4f46e5;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ═══════════ RESPONSIVE ═══════════ */
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .table th,
+            .table td {
+                padding: 6px;
+                font-size: 11px;
+            }
+
+            .ban-form {
+                flex-direction: column;
+            }
+
+            .ban-form input,
+            .ban-form select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ⭐ شاشة تسجيل الدخول                              -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-box">
+        <h2>🛡️ Security Dashboard</h2>
+        <input type="text" id="adminUsername" placeholder="Admin Username" autocomplete="username">
+        <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password">
+        <button onclick="loginAdmin()">🔐 Login</button>
+        <div class="login-error" id="loginError"></div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ⭐ لوحة التحكم                                     -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="dashboard" class="container" style="display:none">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🛡️ Security Dashboard <span id="adminName"></span></h1>
+        <div class="header-actions">
+            <div class="status-indicator">
+                <span class="dot"></span>
+                <span>Auto-refresh: <span id="refreshCountdown">5</span>s</span>
+            </div>
+            <button class="logout-btn" onclick="logoutAdmin()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card danger">
+            <div class="stat-label">Blocked IPs</div>
+            <div class="stat-value" id="statBlockedIPs">0</div>
+        </div>
+        <div class="stat-card warning">
+            <div class="stat-label">Suspicious Users</div>
+            <div class="stat-value" id="statSuspicious">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Violations</div>
+            <div class="stat-value" id="statViolations">0</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-label">Connections (1h)</div>
+            <div class="stat-value" id="statConnections">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Nonces</div>
+            <div class="stat-value" id="statNonces">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Tracked IPs</div>
+            <div class="stat-value" id="statTrackedIPs">0</div>
+        </div>
+    </div>
+
+    <!-- Suspicious Users -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">🚨 Suspicious Users</div>
+            <button class="refresh-btn" onclick="loadAll()">🔄 Refresh</button>
+        </div>
+        <div id="suspiciousList"></div>
+    </div>
+
+    <!-- Blocked IPs + Manual Ban Form -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">🚫 Blocked IP Addresses</div>
+            <button class="refresh-btn" onclick="loadAll()">🔄 Refresh</button>
+        </div>
+
+        <div class="ban-form">
+            <input type="text" id="banIPInput" placeholder="IP address (e.g. 192.168.1.1)">
+            <select id="banDuration">
+                <option value="300">5 دقائق</option>
+                <option value="1800">30 دقيقة</option>
+                <option value="3600" selected>ساعة</option>
+                <option value="21600">6 ساعات</option>
+                <option value="86400">يوم</option>
+                <option value="604800">أسبوع</option>
+                <option value="2592000">شهر</option>
+            </select>
+            <input type="text" id="banReason" placeholder="Reason (e.g. spam, abuse)">
+            <button class="refresh-btn danger" onclick="manualBan()">🚫 Ban</button>
+        </div>
+
+        <div id="blockedList"></div>
+    </div>
+
+    <!-- Rate Limiters -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">⏱️ Active Rate Limiters</div>
+        </div>
+        <div id="limitersList"></div>
+    </div>
+
+    <!-- Live Activity Log -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-title">📋 Live Activity Log</div>
+            <button class="refresh-btn" onclick="loadAll()">🔄 Refresh</button>
+        </div>
+        <div id="activityLog" style="max-height: 500px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- Uptime Info -->
+    <div class="uptime-info" id="uptimeInfo"></div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ⭐ SCRIPT                                          -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script>
+// ============================================================
+// ⭐ CONFIG
+// ============================================================
+const REFRESH_INTERVAL = 5000;
+let refreshTimer = null;
+let countdownTimer = null;
+let countdown = 5;
+let isLoggedIn = false;
+
+// ============================================================
+// ⭐ AUTH
+// ============================================================
+async function loginAdmin() {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    const errEl = document.getElementById('loginError');
+
+    if (!username || !password) {
+        errEl.innerText = 'Enter username and password';
+        return;
+    }
+
+    errEl.innerText = '⏳ Logging in...';
+
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+            errEl.innerText = '❌ ' + (data.error || 'Invalid credentials');
+            return;
+        }
+
+        if (!data.user.isAdmin) {
+            errEl.innerText = '❌ Admin access required';
+            return;
+        }
+
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('admin_username', data.user.username);
+        isLoggedIn = true;
+
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('adminName').innerText = `(${data.user.username})`;
+
+        loadAll();
+        startAutoRefresh();
+    } catch (err) {
+        errEl.innerText = '❌ Network error: ' + err.message;
+    }
+}
+
+async function checkExistingSession() {
+    const token = localStorage.getItem('admin_token');
+    const username = localStorage.getItem('admin_username');
+
+    if (!token) return;
+
+    try {
+        const res = await fetch('/api/auto-login', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success && data.user.isAdmin) {
+            isLoggedIn = true;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('adminName').innerText = `(${data.user.username})`;
+            loadAll();
+            startAutoRefresh();
+        } else {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_username');
+        }
+    } catch (err) {
+        localStorage.removeItem('admin_token');
+    }
+}
+
+function logoutAdmin() {
+    if (!confirm('Logout from dashboard?')) return;
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_username');
+    window.location.reload();
+}
+
+function authHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('admin_token')}`
+    };
+}
+
+// ============================================================
+// ⭐ AUTO REFRESH
+// ============================================================
+function startAutoRefresh() {
+    if (refreshTimer) clearInterval(refreshTimer);
+    if (countdownTimer) clearInterval(countdownTimer);
+
+    countdown = 5;
+    document.getElementById('refreshCountdown').innerText = countdown;
+
+    countdownTimer = setInterval(() => {
+        countdown--;
+        if (countdown < 0) countdown = 5;
+        document.getElementById('refreshCountdown').innerText = countdown;
+    }, 1000);
+
+    refreshTimer = setInterval(() => {
+        countdown = 5;
+        loadAll();
+    }, REFRESH_INTERVAL);
+}
+
+// ============================================================
+// ⭐ LOAD DATA
+// ============================================================
+async function loadAll() {
+    if (!isLoggedIn) return;
+
+    try {
+        await Promise.all([
+            loadStats(),
+            loadSuspicious(),
+            loadBlocked(),
+            loadLimiters(),
+            loadActivity()
+        ]);
+    } catch (err) {
+        console.error('Load error:', err);
+    }
+}
+
+async function loadStats() {
+    try {
+        const res = await fetch('/api/admin/security/stats', {
+            headers: authHeaders()
+        });
+        if (res.status === 401) {
+            logoutAdmin();
+            return;
+        }
+        const data = await res.json();
+        if (!data.success) return;
+
+        const s = data.stats;
+        document.getElementById('statBlockedIPs').innerText = s.blockedIPs;
+        document.getElementById('statSuspicious').innerText = s.suspiciousUsers.length;
+        document.getElementById('statViolations').innerText = s.totalViolations;
+        document.getElementById('statConnections').innerText = s.recentConnections;
+        document.getElementById('statNonces').innerText = s.activeNonces;
+        document.getElementById('statTrackedIPs').innerText = s.totalTrackedIPs;
+
+        const uptime = Math.floor(s.uptime);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const mem = (s.memory.heapUsed / 1024 / 1024).toFixed(1);
+        document.getElementById('uptimeInfo').innerText =
+            `Server uptime: ${hours}h ${minutes}m | Memory: ${mem} MB | Last update: ${new Date(s.timestamp).toLocaleTimeString()}`;
+    } catch (err) {
+        console.error('loadStats:', err);
+    }
+}
+
+async function loadSuspicious() {
+    try {
+        const res = await fetch('/api/admin/security/stats', {
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!data.success) return;
+
+        const users = data.stats.suspiciousUsers;
+        const container = document.getElementById('suspiciousList');
+
+        if (!users.length) {
+            container.innerHTML = '<div class="empty-state">✅ No suspicious users</div>';
+            return;
+        }
+
+        container.innerHTML = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Score</th>
+                        <th>Last Seen</th>
+                        <th>Reasons</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(u => {
+                        const scoreColor = u.score >= 80 ? 'danger' :
+                                          u.score >= 40 ? 'warning' : 'info';
+                        const pct = Math.min(100, u.score);
+                        const lastSeen = new Date(u.lastSeen).toLocaleTimeString();
+                        const reasons = (u.reasons || [])
+                            .slice(-3)
+                            .map(r => r.reason)
+                            .join(', ');
+                        return `
+                            <tr>
+                                <td><strong>${escapeHtml(u.username)}</strong></td>
+                                <td>
+                                    <span class="badge ${scoreColor}">${Math.round(u.score)}</span>
+                                    <div class="score-bar">
+                                        <div class="score-fill" style="width:${pct}%"></div>
+                                    </div>
+                                </td>
+                                <td>${lastSeen}</td>
+                                <td style="font-size:11px;">${escapeHtml(reasons)}</td>
+                                <td>
+                                    <button class="action-btn success"
+                                            onclick="clearSuspicion('${escapeHtml(u.username)}')">
+                                        Clear
+                                    </button>
+                                    <button class="action-btn info"
+                                            onclick="showViolations('${escapeHtml(u.username)}')">
+                                        Details
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        console.error('loadSuspicious:', err);
+    }
+}
+
+async function loadBlocked() {
+    try {
+        const res = await fetch('/api/admin/bans/list', {
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!data.success) return;
+
+        const blocked = data.bans;
+        const container = document.getElementById('blockedList');
+
+        if (!blocked.length) {
+            container.innerHTML = '<div class="empty-state">✅ No blocked IPs</div>';
+            return;
+        }
+
+        container.innerHTML = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>IP Address</th>
+                        <th>Reason</th>
+                        <th>Banned By</th>
+                        <th>Remaining</th>
+                        <th>Score</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${blocked.map(b => {
+                        const remainingMs = b.remainingMs;
+                        const days = Math.floor(remainingMs / 86400000);
+                        const hours = Math.floor((remainingMs % 86400000) / 3600000);
+                        const minutes = Math.floor((remainingMs % 3600000) / 60000);
+
+                        let remaining;
+                        if (days > 0) remaining = `${days}d ${hours}h`;
+                        else if (hours > 0) remaining = `${hours}h ${minutes}m`;
+                        else remaining = `${minutes}m`;
+
+                        const byClass = b.by === 'auto' ? 'danger' :
+                                       b.by === 'auto-threshold' ? 'warning' :
+                                       b.by === 'auto-chain' ? 'danger' : 'info';
+
+                        return `
+                            <tr>
+                                <td><code>${escapeHtml(b.ip)}</code></td>
+                                <td>${escapeHtml(b.reason)}</td>
+                                <td><span class="badge ${byClass}">${escapeHtml(b.by)}</span></td>
+                                <td><span class="badge warning">${remaining}</span></td>
+                                <td>${b.score ? `<span class="badge danger">${b.score}</span>` : '—'}</td>
+                                <td>
+                                    <button class="action-btn success"
+                                            onclick="unblockIP('${escapeHtml(b.ip)}')">
+                                        Unban
+                                    </button>
+                                    <button class="action-btn info"
+                                            onclick="showViolations('${escapeHtml(b.ip)}')">
+                                        Details
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        console.error('loadBlocked:', err);
+    }
+}
+
+async function loadLimiters() {
+    try {
+        const res = await fetch('/api/admin/security/limiters', {
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!data.success) return;
+
+        const limiters = data.limiters;
+        const container = document.getElementById('limitersList');
+
+        container.innerHTML = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Limiter</th>
+                        <th>Type</th>
+                        <th>Limit</th>
+                        <th>Active Keys</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${Object.entries(limiters).map(([name, info]) => {
+                        let limit = '';
+                        if (info.type === 'sliding_window') {
+                            const sec = Math.floor(info.windowMs / 1000);
+                            limit = `${info.maxRequests}/${sec}s`;
+                        } else {
+                            limit = `${info.capacity} cap · ${info.refillRate}/s`;
+                        }
+                        const activeClass = info.activeKeys > 50 ? 'danger' :
+                                           info.activeKeys > 20 ? 'warning' : 'info';
+                        return `
+                            <tr>
+                                <td><strong>${escapeHtml(name)}</strong></td>
+                                <td><span class="badge info">${info.type}</span></td>
+                                <td>${limit}</td>
+                                <td><span class="badge ${activeClass}">${info.activeKeys}</span></td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        console.error('loadLimiters:', err);
+    }
+}
+
+async function loadActivity() {
+    try {
+        const res = await fetch('/api/admin/security/log?limit=100', {
+            headers: authHeaders()
+        });
+        const data = await res.json();
+        if (!data.success) return;
+
+        const log = data.log;
+        const container = document.getElementById('activityLog');
+
+        if (!log.length) {
+            container.innerHTML = '<div class="empty-state">📭 No activity yet</div>';
+            return;
+        }
+
+        container.innerHTML = log.map(entry => {
+            const time = new Date(entry.timestamp).toLocaleTimeString();
+            const typeClass = entry.type.includes('ban') || entry.type.includes('block') ? 'danger' :
+                             entry.type.includes('violation') || entry.type.includes('rate') ? 'warning' :
+                             entry.type.includes('admin') ? 'success' : 'info';
+
+            let content = '';
+
+            switch (entry.type) {
+                case 'blocked_request':
+                    content = `🚫 <b>${escapeHtml(entry.ip)}</b> tried <code>${escapeHtml(entry.path)}</code>`;
+                    break;
+                case 'blocked_socket':
+                    content = `🚫 <b>${escapeHtml(entry.ip)}</b> tried Socket connect`;
+                    break;
+                case 'failed_login':
+                    content = `❌ Failed login: <b>${escapeHtml(entry.username)}</b> from <code>${escapeHtml(entry.ip)}</code>${entry.attempts ? ` (attempt ${entry.attempts})` : ''}`;
+                    break;
+                case 'violation':
+                    const sev = entry.severity === 'critical' ? '🔴' :
+                               entry.severity === 'high' ? '🟠' :
+                               entry.severity === 'medium' ? '🟡' : '🟢';
+                    content = `${sev} Violation: <b>${escapeHtml(entry.violationType)}</b> — <code>${escapeHtml(entry.ip)}</code>${entry.username ? ` — ${escapeHtml(entry.username)}` : ''} (weight: ${entry.weight})`;
+                    break;
+                case 'auto_ban':
+                    const dur = Math.floor(entry.duration / 60);
+                    content = `🚫 <b>AUTO-BAN</b>: <code>${escapeHtml(entry.ip)}</code> for ${dur}m — ${escapeHtml(entry.reason || entry.violationType)}`;
+                    break;
+                case 'auto_ban_threshold':
+                    const dur2 = Math.floor(entry.duration / 60);
+                    content = `🚫 <b>AUTO-BAN</b>: <code>${escapeHtml(entry.ip)}</code> for ${dur2}m — score: ${entry.score}`;
+                    break;
+                case 'admin_ban':
+                    content = `👑 <b>${escapeHtml(entry.admin)}</b> banned <code>${escapeHtml(entry.ip)}</code> for ${entry.duration}s`;
+                    break;
+                case 'admin_unban':
+                    content = `👑 <b>${escapeHtml(entry.admin)}</b> unbanned <code>${escapeHtml(entry.ip)}</code>`;
+                    break;
+                case 'admin_clear_suspicion':
+                    content = `👑 <b>${escapeHtml(entry.admin)}</b> cleared suspicion: <b>${escapeHtml(entry.target)}</b>`;
+                    break;
+                case 'admin_clear_violations':
+                    content = `👑 <b>${escapeHtml(entry.admin)}</b> cleared violations: <b>${escapeHtml(entry.target)}</b>`;
+                    break;
+                case 'expired_token':
+                    content = `⏰ Expired token from <code>${escapeHtml(entry.ip)}</code>`;
+                    break;
+                default:
+                    content = `📌 ${escapeHtml(entry.type)}`;
+            }
+
+            return `
+                <div class="log-item ${typeClass}">
+                    <div class="log-time">${time}</div>
+                    <div class="log-content">${content}</div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('loadActivity:', err);
+    }
+}
+
+// ============================================================
+// ⭐ ACTIONS
+// ============================================================
+async function unblockIP(ip) {
+    if (!confirm(`Unblock ${ip}?`)) return;
+
+    try {
+        const res = await fetch('/api/admin/security/unblock-ip', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ ip })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(`✅ Unblocked: ${ip}`);
+            loadAll();
+        } else {
+            alert('Failed');
+        }
+    } catch (err) {
+        alert('Network error');
+    }
+}
+
+async function clearSuspicion(username) {
+    if (!confirm(`Clear suspicion for ${username}?`)) return;
+
+    try {
+        const res = await fetch('/api/admin/security/clear-suspicion', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ username })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(`✅ Cleared: ${username}`);
+            loadAll();
+        } else {
+            alert('Failed');
+        }
+    } catch (err) {
+        alert('Network error');
+    }
+}
+
+async function manualBan() {
+    const ip = document.getElementById('banIPInput').value.trim();
+    const duration = parseInt(document.getElementById('banDuration').value);
+    const reason = document.getElementById('banReason').value.trim() || 'manual';
+
+    if (!ip) return alert('Enter IP address');
+
+    if (!/^[\d\.\:a-fA-F]+$/.test(ip)) {
+        return alert('Invalid IP format');
+    }
+
+    const durStr = duration >= 86400
+        ? `${Math.floor(duration / 86400)} يوم`
+        : duration >= 3600
+        ? `${Math.floor(duration / 3600)} ساعة`
+        : `${Math.floor(duration / 60)} دقيقة`;
+
+    if (!confirm(`Ban ${ip} for ${durStr}?\nReason: ${reason}`)) return;
+
+    try {
+        const res = await fetch('/api/admin/bans/ban', {
+            method: 'POST',
+            headers: authHeaders(),
+            body: JSON.stringify({ ip, duration, reason })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(`✅ Banned: ${ip}`);
+            document.getElementById('banIPInput').value = '';
+            document.getElementById('banReason').value = '';
+            loadAll();
+        } else {
+            alert('Failed: ' + (data.error || 'Unknown'));
+        }
+    } catch (err) {
+        alert('Network error: ' + err.message);
+    }
+}
+
+async function showViolations(key) {
+    try {
+        const res = await fetch(
+            `/api/admin/bans/violations/${encodeURIComponent(key)}`,
+            { headers: authHeaders() }
+        );
+        const data = await res.json();
+        if (!data.success) return;
+
+        const { violations, linkedIPs } = data;
+
+        let html = `<h3 style="margin-bottom:16px;">🔍 ${escapeHtml(key)}</h3>`;
+
+        if (violations.length) {
+            html += `<h4 style="color:#f59e0b;margin-bottom:8px;">Violations (${violations.length}):</h4><ul style="list-style:none;padding:0;">`;
+            violations.forEach(v => {
+                const time = new Date(v.time).toLocaleTimeString();
+                html += `<li style="padding:8px;background:#0f172a;border-radius:8px;margin-bottom:6px;border-right:3px solid #f59e0b;">
+                    <b>${escapeHtml(v.type)}</b> — weight ${v.weight} — ${time}
+                </li>`;
+            });
+            html += '</ul>';
+        } else {
+            html += '<p style="color:#64748b;">No recent violations</p>';
+        }
+
+        if (linkedIPs.length) {
+            html += `<h4 style="color:#3b82f6;margin:16px 0 8px;">Linked IPs (${linkedIPs.length}):</h4><ul style="list-style:none;padding:0;">`;
+            linkedIPs.forEach(ip => {
+                html += `<li style="padding:6px;background:#0f172a;border-radius:6px;margin-bottom:4px;">
+                    <code>${escapeHtml(ip)}</code>
+                </li>`;
+            });
+            html += '</ul>';
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+        modal.innerHTML = `
+            <div class="modal-content">
+                ${html}
+                <button class="modal-close"
+                        onclick="this.parentElement.parentElement.remove()">
+                    Close
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch (err) {
+        alert('Failed to load violations');
+    }
+}
+
+// ============================================================
+// ⭐ HELPERS
+// ============================================================
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m =>
+        m === '&' ? '&amp;' :
+        m === '<' ? '&lt;' :
+        m === '>' ? '&gt;' :
+        m === '"' ? '&quot;' : '&#39;'
+    );
+}
+
+// ============================================================
+// ⭐ INIT
+// ============================================================
+checkExistingSession();
+
+// ⭐ Enter key on login
+document.getElementById('adminPassword')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginAdmin();
+});
+
+document.getElementById('adminUsername')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('adminPassword').focus();
+    }
+});
+</script>
+
+</body>
+</html>
